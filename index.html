@@ -1,15 +1,237 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title> favorites / bookmark title goes here </title>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .states {
+            fill: none;
+            stroke: #000000;
+            stroke-linejoin: round;
+        }
+
+        .d3-tip {
+            line-height: 1;
+            padding: 6px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Creates a small triangle extender for the tooltip */
+        .d3-tip:after {
+            box-sizing: border-box;
+            display: inline;
+            font-size: 10px;
+            width: 100%;
+            line-height: 1;
+            color: rgba(0, 0, 0, 0.8);
+            content: "\25BC";
+            position: absolute;
+            text-align: center;
+        }
+
+        /* Style northward tooltips specifically */
+        .d3-tip.n:after {
+            margin: -2px 0 0 0;
+            top: 100%;
+            left: 0;
+        }
+
+    </style>
+    <script src="lib/d3.v5.min.js"></script>
+    <script src="lib/d3-scale-chromatic.v1.min.js"></script>
+    <script src="lib/topojson.v2.min.js"></script>
+    <script src="lib/d3-simple-slider.min.js"></script>
+    <script src="lib/d3-tip.min.js"></script>
 </head>
+<body>
 
-<body bgcolor="white" text="blue">
+<div class="row align-items-center">
+    <div class="col-sm">
+        <div id="slider-time"></div>
+    </div>
+</div>
+<svg width="1500" height="800"></svg>
+<script>
+    var margin = {top: 50, right: 200, bottom: 50, left: 70};
 
-<h1> My first page </h1>
+    var dataset, mapJson, currentYear="2010";
 
-This is my first web page and I can say anything I want in here - I do that by putting text or images in the body section - where I'm typing right now :)
+    var svg = d3.select("svg"),
+        width = +svg.attr("width") - margin.left - margin.right - 150,
+        height = +svg.attr("height") - margin.top - margin.bottom - 100;
 
+    var dataTime = d3.range(0, 6).map(function (d) {
+        return new Date(2010 + d, 10, 3);
+    });
+
+    var sliderTime = d3
+        .sliderBottom()
+        .min(d3.min(dataTime))
+        .max(d3.max(dataTime))
+        .step(1000 * 60 * 60 * 24 * 365)
+        .width(300)
+        .tickFormat(d3.timeFormat('%Y'))
+        .tickValues(dataTime)
+        .default(new Date(2010, 10, 3))
+        .on('onchange', val => {
+            currentYear = d3.timeFormat('%Y')(val);
+            updateMap(val);
+        });
+
+
+    var gTimeSvg = d3
+        .select('div#slider-time')
+        .append('svg')
+        .attr('width', 1000)
+        .attr('height', 100);
+
+    gTimeSvg.append('text')
+        .style("font-size", "14px").attr("x", 30)
+        .attr("y", margin.top - 15)
+        .text("Year");
+
+    var gTime = gTimeSvg
+        .append('g')
+        .attr('transform', 'translate(80,30)');
+    gTime.call(sliderTime);
+
+    var airfludataMap = d3.map();
+
+    var projection = d3.geoAlbersUsa()
+        .translate([width / 2, height / 2])
+        .scale([1000]);
+    var path = d3.geoPath().projection(projection);
+
+
+    var x = d3.scaleLinear()
+        .rangeRound([0, width]);
+
+    var color;
+
+    svg.append("text")
+        .attr("x", width - 200)
+        .attr("y", margin.top)
+        .style("font-size", "13px")
+        .style("font-weight", "bold")
+        .attr("text-achor", "middle")
+        .text("Pneumonia and Influenza Deaths");
+
+    svg.append("text")
+            .attr("x", width - 200)
+            .attr("y", (height-margin.bottom))
+            .style("font-size", "12px")
+            .attr("text-achor","right")
+            .text("shanji3");
+
+    var tool_tip = d3.tip()
+        .attr("class", "d3-tip")
+        .offset([-8, 0])
+        .html(function (d) {
+            var state = d.properties.name;
+            var entry = dataset.find(function(s) { if(d.properties.name == s.States) return s.Region;});
+            var region = entry.Region;
+            var eqCount = entry[currentYear]
+            return "State: " + state + "<br />"
+                    + "Region: " + region + "<br />"
+                    + "Year: " + currentYear + "<br />"
+                    + "Earthquakes: " + eqCount;
+        });
+    svg.call(tool_tip);
+
+    var promises = [
+        d3.json("states-10m.json")
+            .then(function (json) {
+                mapJson = json;
+            }),
+        d3.dsv(',', "data/merged_air_with_flu.csv")
+            .then(function (d) {
+                dataset = d;
+                d.forEach(function (r) {
+                    airfludataMap.set(r.State, r["Pneumonia and Influenza Deaths"]);
+                });
+            })
+    ];
+
+    Promise.all(promises).then(ready);
+
+    function ready() {
+        loadMapUsingData();
+    }
+
+    function loadMapUsingData() {
+        color = d3.scaleQuantile()
+            .domain(airfludataMap.values().filter(function (d, i) {
+                return airfludataMap.values().indexOf(d) == i;
+            }))
+            .range(d3.schemeOrRd[9]);
+        svg.append("g")
+            .attr("class", "states")
+            .selectAll("path")
+            .data(topojson.feature(mapJson, mapJson.objects.states).features)
+            .enter().append("path")
+            .attr("fill", function (d) {
+                return color(d.eqmag = airfludataMap.get(d.properties.name));
+            })
+            .attr("d", path)
+            .on('mouseover', tool_tip.show)
+            .on('mouseout', tool_tip.hide)
+            .append("title");
+
+        svg.append("path")
+            .datum(topojson.mesh(mapJson, mapJson.objects.states, function (a, b) {
+                return a !== b;
+            }))
+            .attr("class", "states")
+            .attr("d", path)
+            ;
+
+        createLegend();
+    }
+
+    function updateMap(val) {
+        airfludataMap = d3.map();
+        var year = d3.timeFormat('%Y')(val);
+        dataset.forEach(function (r) {
+            airfludataMap.set(r.State, r["Pneumonia and Influenza Deaths"]);
+        });
+        loadMapUsingData(mapJson);
+    }
+
+    function createLegend() {
+        d3.selectAll(".legend").remove();
+
+        var legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("x", width - 200)
+            .attr("y", margin.top + 30)
+            .attr("height", 100)
+            .attr("width", 150);
+        legend.selectAll('g').data(color.range())
+            .enter()
+            .append('g')
+            .each(function (c, i) {
+                var g = d3.select(this);
+                g.append("rect")
+                    .attr("x", width - 150)
+                    .attr("y", i * 22 + 70)
+                    .attr("width", 20)
+                    .attr("height", 20)
+                    .attr("fill", c);
+
+                g.append("text")
+                    .attr("x", width - 125)
+                    .attr("y", i * 23 + 80)
+                    .attr("height", 20)
+                    .attr("width", 100)
+                    .style("font-size", "12px")
+                    .text(Math.round(color.invertExtent(c)[1]));
+
+            });
+
+    }
+</script>
 </body>
-
 </html>
