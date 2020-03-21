@@ -47,56 +47,24 @@
     <script src="lib/d3-tip.min.js"></script>
 </head>
 <body>
-
-<div class="row align-items-center">
-    <div class="col-sm">
-        <div id="slider-time"></div>
-    </div>
+<div style="background-color:bisque;color: brown; font-family:'Book Antiqua' ;text-align: center"><h1>Impact of Climate on Health</h1></div>
+<div style="overflow: hidden">
+    <div style="float: left" id="slider-percep"></div>
+    <div style="float: left" id="slider-temp"></div>
+    <div style="overflow: hidden" id="slider-pollution"></div>
+    <div style="float: left" id="slider-storm"></div>
+    <div style="float: left" id="slider-flu"></div>
+    <div style="float: left" id="slider-lung"></div>
 </div>
 <svg width="1500" height="800"></svg>
 <script>
     var margin = {top: 50, right: 200, bottom: 50, left: 70};
 
-    var dataset, mapJson, currentYear="2010";
+    var dataset, mapJson, currentYear = "2010";
 
     var svg = d3.select("svg"),
         width = +svg.attr("width") - margin.left - margin.right - 150,
         height = +svg.attr("height") - margin.top - margin.bottom - 100;
-
-    var dataTime = d3.range(0, 6).map(function (d) {
-        return new Date(2010 + d, 10, 3);
-    });
-
-    var sliderTime = d3
-        .sliderBottom()
-        .min(d3.min(dataTime))
-        .max(d3.max(dataTime))
-        .step(1000 * 60 * 60 * 24 * 365)
-        .width(300)
-        .tickFormat(d3.timeFormat('%Y'))
-        .tickValues(dataTime)
-        .default(new Date(2010, 10, 3))
-        .on('onchange', val => {
-            currentYear = d3.timeFormat('%Y')(val);
-            updateMap(val);
-        });
-
-
-    var gTimeSvg = d3
-        .select('div#slider-time')
-        .append('svg')
-        .attr('width', 1000)
-        .attr('height', 100);
-
-    gTimeSvg.append('text')
-        .style("font-size", "14px").attr("x", 30)
-        .attr("y", margin.top - 15)
-        .text("Year");
-
-    var gTime = gTimeSvg
-        .append('g')
-        .attr('transform', 'translate(80,30)');
-    gTime.call(sliderTime);
 
     var airfludataMap = d3.map();
 
@@ -117,27 +85,23 @@
         .style("font-size", "13px")
         .style("font-weight", "bold")
         .attr("text-achor", "middle")
-        .text("Pneumonia and Influenza Deaths");
+        .text("Index");
 
-    svg.append("text")
-            .attr("x", width - 200)
-            .attr("y", (height-margin.bottom))
-            .style("font-size", "12px")
-            .attr("text-achor","right")
-            .text("shanji3");
 
     var tool_tip = d3.tip()
         .attr("class", "d3-tip")
         .offset([-8, 0])
         .html(function (d) {
             var state = d.properties.name;
-            var entry = dataset.find(function(s) { if(d.properties.name == s.States) return s.Region;});
+            var entry = dataset.find(function (s) {
+                if (d.properties.name.toUpperCase() == s.state.toUpperCase()) return s.Region;
+            });
             var region = entry.Region;
             var eqCount = entry[currentYear]
             return "State: " + state + "<br />"
-                    + "Region: " + region + "<br />"
-                    + "Year: " + currentYear + "<br />"
-                    + "Earthquakes: " + eqCount;
+                + "Region: " + region + "<br />"
+                + "Year: " + currentYear + "<br />"
+                + "Earthquakes: " + eqCount;
         });
     svg.call(tool_tip);
 
@@ -146,11 +110,11 @@
             .then(function (json) {
                 mapJson = json;
             }),
-        d3.dsv(',', "data/merged_air_with_flu.csv")
+        d3.dsv(',', "data/final_merged.csv")
             .then(function (d) {
                 dataset = d;
                 d.forEach(function (r) {
-                    airfludataMap.set(r.State, r["Pneumonia and Influenza Deaths"]);
+                    airfludataMap.set(r.state.toUpperCase(), r["inches of water"]);
                 });
             })
     ];
@@ -159,6 +123,7 @@
 
     function ready() {
         loadMapUsingData();
+        showSliders()
     }
 
     function loadMapUsingData() {
@@ -173,7 +138,7 @@
             .data(topojson.feature(mapJson, mapJson.objects.states).features)
             .enter().append("path")
             .attr("fill", function (d) {
-                return color(d.eqmag = airfludataMap.get(d.properties.name));
+                return color(d.eqmag = airfludataMap.get(d.properties.name.toUpperCase()));
             })
             .attr("d", path)
             .on('mouseover', tool_tip.show)
@@ -186,16 +151,70 @@
             }))
             .attr("class", "states")
             .attr("d", path)
-            ;
+        ;
 
         createLegend();
+    }
+
+    function showSliders() {
+        showSlider("inches of water", 'div#slider-percep', "Precipitation",
+                            1, 300, 10);
+        showSlider("degrees F", 'div#slider-temp', "Temperature",
+                            1, 300, 40);
+        showSlider("average_AQI", 'div#slider-pollution', "Pollution Index",
+                            1, 200, 1);
+        showSlider("storm_deaths", 'div#slider-storm', "Storm Deaths",
+                            1, 200, 1);
+        showSlider("Pneumonia and Influenza Deaths", 'div#slider-flu', "Pneumonea/Flu Deaths",
+                            1, 200, 1);
+        showSlider("lung_cancer", 'div#slider-lung', "Lung Cancer Deaths",
+                            1, 200, 1);
+
+
+    }
+
+    function showSlider(column, divName, title, step, width, def) {
+        var slider = d3
+            .sliderBottom()
+            .min(d3.min(dataset, function (d) {
+                return +d[column]
+            }))
+            .max(d3.max(dataset, function (d) {
+                return +d[column]
+            }))
+            .step(step)
+            .width(width)
+            .default(def);
+        // .on('onchange', val => {
+        //     currentYear = d3.timeFormat('%Y')(val);
+        //     updateMap(val);
+        // });
+
+
+        var gSvg = d3
+            .select(divName)
+            .append('svg')
+            .attr('width', width + 100)
+            .attr('height', 100);
+
+        gSvg.append('text')
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .attr("x", 30)
+            .attr("y", margin.top - 30)
+            .text(title);
+
+        var g = gSvg
+            .append('g')
+            .attr('transform', 'translate(80,30)');
+        g.call(slider);
     }
 
     function updateMap(val) {
         airfludataMap = d3.map();
         var year = d3.timeFormat('%Y')(val);
         dataset.forEach(function (r) {
-            airfludataMap.set(r.State, r["Pneumonia and Influenza Deaths"]);
+            airfludataMap.set(r.state, r["inches of water"]);
         });
         loadMapUsingData(mapJson);
     }
@@ -226,6 +245,7 @@
                     .attr("y", i * 23 + 80)
                     .attr("height", 20)
                     .attr("width", 100)
+
                     .style("font-size", "12px")
                     .text(Math.round(color.invertExtent(c)[1]));
 
