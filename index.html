@@ -45,28 +45,56 @@
     <script src="lib/topojson.v2.min.js"></script>
     <script src="lib/d3-simple-slider.min.js"></script>
     <script src="lib/d3-tip.min.js"></script>
+
+    <script src="lib/emlapack-custom.js"></script>
+    <script src="lib/index.js"></script>
+    <script src="lib/pca.js"></script>
+    <script src="lib/renderer.js"></script>
 </head>
 <body>
-<div style="background-color:bisque;color: brown; font-family:'Book Antiqua' ;text-align: center"><h1>Impact of Climate on Health</h1></div>
+<div style="background-color:bisque;color: brown; font-family:'Book Antiqua' ;text-align: center"><h1>Impact of Climate
+    on Health</h1></div>
 <div style="overflow: hidden">
-    <div style="float: left" id="slider-percep"></div>
-    <div style="float: left" id="slider-temp"></div>
-    <div style="overflow: hidden" id="slider-pollution"></div>
-    <div style="float: left" id="slider-storm"></div>
-    <div style="float: left" id="slider-flu"></div>
-    <div style="float: left" id="slider-lung"></div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" checked id="percepId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="float: left" id="slider-percep"></div>
+    </div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" checked  id="tempId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="float: left" id="slider-temp"></div>
+    </div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" checked  id="pollutionId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="overflow: hidden" id="slider-pollution"></div>
+    </div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" checked  id="stormId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="float: left" id="slider-storm"></div>
+    </div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" checked  id="stormInjId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="float: left" id="slider-storm-inj"></div>
+    </div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" id="fluId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="float: left" id="slider-flu"></div>
+    </div>
+    <div style="float: left;height: 70px">
+        <input type="checkbox" id="lungId" style="float:left; position: relative;top:10px">
+        <div style="float: left" id="slider-lung"></div>
+    </div>
 </div>
 <svg width="1500" height="800"></svg>
 <script>
     var margin = {top: 50, right: 200, bottom: 50, left: 70};
-
+    var sliderPercep, sliderTemp, sliderPollution, sliderStorm ,sliderStormInj, sliderFlu, sliderLung;
     var dataset, mapJson, currentYear = "2010";
 
     var svg = d3.select("svg"),
         width = +svg.attr("width") - margin.left - margin.right - 150,
         height = +svg.attr("height") - margin.top - margin.bottom - 100;
 
-    var airfludataMap = d3.map();
+    var dataMap = d3.map();
 
     var projection = d3.geoAlbersUsa()
         .translate([width / 2, height / 2])
@@ -105,6 +133,8 @@
         });
     svg.call(tool_tip);
 
+
+
     var promises = [
         d3.json("states-10m.json")
             .then(function (json) {
@@ -114,12 +144,44 @@
             .then(function (d) {
                 dataset = d;
                 d.forEach(function (r) {
-                    airfludataMap.set(r.state.toUpperCase(), r["inches of water"]);
+                    dataMap.set(r.state.toUpperCase(), calculateIndex(r));
                 });
             })
     ];
 
     Promise.all(promises).then(ready);
+
+    function calculateIndex(r) {
+        var percep = r['inches of water'];
+        var temp = r['degrees F'];
+        var pollution = r['average_AQI'];
+        var stormDeaths = r['storm_deaths'];
+        var stormInj = r['storm_injuries'];
+        var flu = r['Pneumonia and Influenza Deaths'];
+        var lung = r['lung_cancer'];
+
+        var inclVals = [];
+        if (document.getElementById("percepId").checked)
+            inclVals.push(percep);
+        if (document.getElementById("tempId").checked)
+            inclVals.push(temp);
+        if (document.getElementById("pollutionId").checked)
+            inclVals.push(pollution);
+        if (document.getElementById("stormId").checked)
+            inclVals.push(stormDeaths);
+        if (document.getElementById("stormInjId").checked)
+            inclVals.push(stormInj);
+        if (document.getElementById("fluId").checked)
+            inclVals.push(flu);
+        if (document.getElementById("lungId").checked)
+            inclVals.push(lung);
+
+        return d3.mean(inclVals);
+    }
+
+    function calculatePCA() {
+
+    }
 
     function ready() {
         loadMapUsingData();
@@ -128,8 +190,8 @@
 
     function loadMapUsingData() {
         color = d3.scaleQuantile()
-            .domain(airfludataMap.values().filter(function (d, i) {
-                return airfludataMap.values().indexOf(d) == i;
+            .domain(dataMap.values().filter(function (d, i) {
+                return dataMap.values().indexOf(d) == i;
             }))
             .range(d3.schemeOrRd[9]);
         svg.append("g")
@@ -138,7 +200,7 @@
             .data(topojson.feature(mapJson, mapJson.objects.states).features)
             .enter().append("path")
             .attr("fill", function (d) {
-                return color(d.eqmag = airfludataMap.get(d.properties.name.toUpperCase()));
+                return color(d.eqmag = dataMap.get(d.properties.name.toUpperCase()));
             })
             .attr("d", path)
             .on('mouseover', tool_tip.show)
@@ -157,23 +219,25 @@
     }
 
     function showSliders() {
-        showSlider("inches of water", 'div#slider-percep', "Precipitation",
-                            1, 300, 10);
-        showSlider("degrees F", 'div#slider-temp', "Temperature",
-                            1, 300, 40);
-        showSlider("average_AQI", 'div#slider-pollution', "Pollution Index",
-                            1, 200, 1);
-        showSlider("storm_deaths", 'div#slider-storm', "Storm Deaths",
-                            1, 200, 1);
-        showSlider("Pneumonia and Influenza Deaths", 'div#slider-flu', "Pneumonea/Flu Deaths",
-                            1, 200, 1);
-        showSlider("lung_cancer", 'div#slider-lung', "Lung Cancer Deaths",
-                            1, 200, 1);
+        sliderPercep = showSlider("inches of water", 'div#slider-percep', "Precipitation", "percepId",
+            1, 200, 10);
+        sliderTemp = showSlider("degrees F", 'div#slider-temp', "Temperature", "tempId",
+            1, 200, 40);
+        sliderPollution = showSlider("average_AQI", 'div#slider-pollution', "Pollution Index", "polluteId",
+            1, 200, 1);
+        sliderStorm = showSlider("storm_deaths", 'div#slider-storm', "Storm Deaths", "stormId",
+            1, 200, 1);
+        sliderStormInj = showSlider("storm_injuries", 'div#slider-storm-inj', "Storm Injuries", "stormInjId",
+            1, 200, 1);
+        sliderFlu = showSlider("Pneumonia and Influenza Deaths", 'div#slider-flu', "Pneumonea/Flu Deaths", "fluId",
+            1, 200, 1);
+        sliderLung = showSlider("lung_cancer", 'div#slider-lung', "Lung Cancer Deaths", "lungId",
+            1, 200, 1);
 
 
     }
 
-    function showSlider(column, divName, title, step, width, def) {
+    function showSlider(column, divName, title, id, step, width, def) {
         var slider = d3
             .sliderBottom()
             .min(d3.min(dataset, function (d) {
@@ -184,11 +248,12 @@
             }))
             .step(step)
             .width(width)
-            .default(def);
-        // .on('onchange', val => {
-        //     currentYear = d3.timeFormat('%Y')(val);
-        //     updateMap(val);
-        // });
+            .default(d3.mean(dataset, function (d) {
+                return +d[column]
+            }))
+        .on('onchange', val => {
+            updateMap();
+        });
 
 
         var gSvg = d3
@@ -197,24 +262,26 @@
             .attr('width', width + 100)
             .attr('height', 100);
 
+
         gSvg.append('text')
             .style("font-size", "14px")
             .style("font-weight", "bold")
-            .attr("x", 30)
+            .attr("x", 10)
             .attr("y", margin.top - 30)
             .text(title);
 
         var g = gSvg
             .append('g')
-            .attr('transform', 'translate(80,30)');
+            .attr('transform', 'translate(30,30)');
         g.call(slider);
+
+        return slider;
     }
 
-    function updateMap(val) {
-        airfludataMap = d3.map();
-        var year = d3.timeFormat('%Y')(val);
+    function updateMap() {
+        dataMap = d3.map();
         dataset.forEach(function (r) {
-            airfludataMap.set(r.state, r["inches of water"]);
+            dataMap.set(r.state.toUpperCase(), calculateIndex(r));
         });
         loadMapUsingData(mapJson);
     }
