@@ -50,6 +50,8 @@
     <script src="lib/index.js"></script>
     <script src="lib/pca.js"></script>
     <script src="lib/renderer.js"></script>
+    <script src="radarChart.js" charset="utf-8"></script>
+
 </head>
 <body>
 <div style="background-color:bisque;color: brown; font-family:'Book Antiqua' ;text-align: center"><h1>Impact of Climate
@@ -85,7 +87,67 @@
     </div>
 </div>
 <svg width="1500" height="800"></svg>
+
+<div class="radarChart2" style="display: inline-flex;"></div>
+
 <script>
+
+
+    //Data format for the radar chart
+    // var data = [
+	// 			{ name: 'New Mexico',
+	// 				axes: [
+	// 					{axis: 'Precipitation', value: 42},
+	// 					{axis: 'Temperature', value: 20},
+	// 					{axis: 'Pollution Index', value: 60},
+	// 					{axis: 'Storm Deaths', value: 26},
+	// 					{axis: 'Storm Injuries', value: 35},
+    //                     {axis: 'Pneumonea/Flu Deaths', value: 20},
+    //                     {axis: 'Lung Cancer Deaths', value: 20}
+
+
+	// 				],
+    //      color: '#26AF32'
+	// 			},
+	// 			{ name: 'Illinois',
+	// 				axes: [
+	// 					{axis: 'Precipitation', value: 50},
+	// 					{axis: 'Temperature', value: 45},
+	// 					{axis: 'Pollution Index', value: 20},
+	// 					{axis: 'Storm Deaths', value: 20},
+	// 					{axis: 'Storm Injuries', value: 25},
+    //                     {axis: 'Pneumonea/Flu Deaths', value: 20},
+    //                     {axis: 'Lung Cancer Deaths', value: 20}	],
+    //      color: '#762712'
+	// 			},
+    //     { name: 'Georgia',
+	// 				axes: [
+	// 					{axis: 'Precipitation', value: 32},
+	// 					{axis: 'Temperature', value: 62},
+	// 					{axis: 'Pollution Index', value: 35},
+	// 					{axis: 'Storm Deaths', value: 10},
+	// 					{axis: 'Storm Injuries', value: 20},
+    //                     {axis: 'Pneumonea/Flu Deaths', value: 20},
+    //                     {axis: 'Lung Cancer Deaths', value: 20}		],
+    //      color: '#2a2fd4'
+	// 			}
+    // 		];
+        // var radarChartOptions2 = {
+        //             w: 290,
+        //             h: 350,
+        //             margin: margin,
+        //             maxValue: 60,
+        //             levels: 6,
+        //             roundStrokes: false,
+        //             color: d3.scaleOrdinal().range(["#AFC52F", "#ff6600", "#2a2fd4"]),
+        //             format: '.0f',
+        //             legend: { title: 'States', translateX: 100, translateY: 40 },
+        //             unit: '%'
+        //         };
+
+        //         // Draw the chart, get a reference the created svg element :
+        // let svg_radar2 = RadarChart(".radarChart2", data, radarChartOptions2);
+
     var margin = {top: 50, right: 200, bottom: 50, left: 70};
     var sliderPercep, sliderTemp, sliderPollution, sliderStorm ,sliderStormInj, sliderFlu, sliderLung;
     var dataset, mapJson, currentYear = "2010";
