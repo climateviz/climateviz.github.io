@@ -90,37 +90,51 @@
     on Health</h1></div>
 <div style="float: left;width: 100%;">
     <div style="overflow: hidden">
-        <div style="float: left;height: 65px">
+
+        <div style="float: left;height: 35px">
             <input type="checkbox" checked id="percepId" onchange="updateMap()"
-                   style="float:left; position: relative;top:10px">
+                   style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Precipitation&nbsp;&nbsp;</label>
             <div style="float: left" id="slider-percep"></div>
         </div>
-        <div style="float: left;height: 65px">
+
+        <div style="float: left;height: 35px">
             <input type="checkbox" checked id="tempId" onchange="updateMap()"
-                   style="float:left; position: relative;top:10px">
+                   style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Temperature&nbsp;&nbsp;</label>
             <div style="float: left" id="slider-temp"></div>
         </div>
-        <div style="float: left;height: 65px">
+        <div style="float: left;height: 35px">
             <input type="checkbox" checked id="pollutionId" onchange="updateMap()"
-                   style="float:left; position: relative;top:10px">
+                   style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Pollution Index&nbsp;&nbsp;</label>
+
             <div style="overflow: hidden" id="slider-pollution"></div>
         </div>
-        <div style="float: left;height: 65px">
+        <div style="float: left;height: 35px">
             <input type="checkbox" checked id="stormId" onchange="updateMap()"
-                   style="float:left; position: relative;top:10px">
+                   style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Storm Deaths&nbsp;&nbsp;</label>
+
             <div style="float: left" id="slider-storm"></div>
         </div>
-        <div style="float: left;height: 65px">
+        <div style="float: left;height: 35px">
             <input type="checkbox" checked id="stormInjId" onchange="updateMap()"
-                   style="float:left; position: relative;top:10px">
+                   style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Storm Injuries&nbsp;&nbsp;</label>
+
             <div style="float: left" id="slider-storm-inj"></div>
         </div>
-        <div style="float: left;height: 65px">
-            <input type="checkbox" id="fluId" onchange="updateMap()" style="float:left; position: relative;top:10px">
+        <div style="float: left;height: 35px">
+            <input type="checkbox" id="fluId" onchange="updateMap()" style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Pneumonea/Flu Deaths&nbsp;&nbsp;</label>
+
             <div style="float: left" id="slider-flu"></div>
         </div>
         <div style="float: left;height: 60px">
-            <input type="checkbox" id="lungId" style="float:left; position: relative;top:10px">
+            <input type="checkbox" id="lungId" style="float:left; position: relative; width: 30px">
+            <label style="font-weight: bold;float: left;height: 35px">Lung Cancer Deaths&nbsp;&nbsp;</label>
+
             <div style="float: left" id="slider-lung"></div>
         </div>
     </div>
@@ -146,6 +160,7 @@
     factorLabelMap.set('Pneumonia and Influenza Deaths', 'Pneumonea/Flu Deaths');
     factorLabelMap.set('lung_cancer', 'Lung Cancer Deaths');
 
+    var pcaVals;
 
     var stateColor ;
 
@@ -172,7 +187,7 @@
         .style("font-size", "13px")
         .style("font-weight", "bold")
         .attr("text-achor", "middle")
-        .text("Index");
+        .text("Cluster");
 
 
     var tool_tip = d3.tip()
@@ -197,60 +212,90 @@
         d3.dsv(',', "data/final_merged.csv")
             .then(function (d) {
                 dataset = d;
-                d.forEach(function (r) {
-                    dataMap.set(r.state.toUpperCase(), calculateIndex(r));
-                });
             })
     ];
 
     Promise.all(promises).then(ready);
 
     function calculateIndex(r) {
-        var percep = r['inches of water'];
-        var temp = r['degrees F'];
-        var pollution = r['average_AQI'];
-        var stormDeaths = r['storm_deaths'];
-        var stormInj = r['storm_injuries'];
-        var flu = r['Pneumonia and Influenza Deaths'];
-        var lung = r['lung_cancer'];
-
-        var inclVals = [];
-        if (document.getElementById("percepId").checked)
-            inclVals.push(percep);
-        if (document.getElementById("tempId").checked)
-            inclVals.push(temp);
-        if (document.getElementById("pollutionId").checked)
-            inclVals.push(pollution);
-        if (document.getElementById("stormId").checked)
-            inclVals.push(stormDeaths);
-        if (document.getElementById("stormInjId").checked)
-            inclVals.push(stormInj);
-        if (document.getElementById("fluId").checked)
-            inclVals.push(flu);
-        if (document.getElementById("lungId").checked)
-            inclVals.push(lung);
-
-        return d3.mean(inclVals);
+        var pca = pcaVals.find(function(v){if (v[0]==r.State) return v[1];});
+        if (pca) {
+            return pca[1];
+        }
+        return 0;
     }
 
     function calculatePCA() {
+        var factors = getSelectedFactors();
+        var promisePCA = d3.json('https://cors-anywhere.herokuapp.com/https://bpl77djfmg.execute-api.us-east-1.amazonaws.com/prod/pca2', {
+            method: "POST",
+            body:  factors,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+        .then(json => {
+                pcaVals = json;
+                console.log(pcaVals);
+            })
+        .catch(function(error) {
+                console.log(error);
+            });
+        return promisePCA;
+    }
 
+    function getFactors() {
+        var percep = 'inches of water';
+        var temp = 'degrees F';
+        var pollution = 'average_AQI';
+        var stormDeaths = 'storm_deaths';
+        var stormInj = 'storm_injuries';
+        var flu = 'Pneumonia and Influenza Deaths';
+        var lung = 'lung_cancer';
+
+        var inclVals = [];
+        if (document.getElementById("percepId").checked)
+            inclVals.push(factorLabelMap.get(percep));
+        if (document.getElementById("tempId").checked)
+            inclVals.push(factorLabelMap.get(temp));
+        if (document.getElementById("pollutionId").checked)
+            inclVals.push(factorLabelMap.get(pollution));
+        if (document.getElementById("stormId").checked)
+            inclVals.push(factorLabelMap.get(stormDeaths));
+        if (document.getElementById("stormInjId").checked)
+            inclVals.push(factorLabelMap.get(stormInj));
+        if (document.getElementById("fluId").checked)
+            inclVals.push(factorLabelMap.get(flu));
+        if (document.getElementById("lungId").checked)
+            inclVals.push(factorLabelMap.get(lung));
+
+        return inclVals;
     }
 
     function ready() {
-        loadMapUsingData();
-        showSliders();
-        calculatePCA();
-        stateColor = d3.scaleOrdinal().domain(dataMap.keys())
-                        .range(d3.schemeCategory10);
+
+        var promisePCA = calculatePCA();
+        promisePCA.then(function(data) {
+            dataset.forEach(function (r) {
+                    dataMap.set(r.state.toUpperCase(), calculateIndex(r));
+            });
+
+            stateColor = d3.scaleOrdinal().domain(dataMap.keys())
+                .range(d3.schemeOrRd[4]);
+
+            loadMapUsingData();
+            showSliders();
+            }
+        );
+
     }
 
     function loadMapUsingData() {
-        color = d3.scaleQuantile()
+        color = d3.scaleOrdinal()
             .domain(dataMap.values().filter(function (d, i) {
                 return dataMap.values().indexOf(d) == i;
             }))
-            .range(d3.schemeOrRd[9]);
+            .range(d3.schemeOrRd[4]);
         svg.append("g")
             .attr("class", "states")
             .selectAll("path")
@@ -347,7 +392,7 @@
     }
 
     function showSliders() {
-        sliderPercep = showSlider("inches of water", 'div#slider-percep', "Precipitation", "percepId",
+        /*sliderPercep = showSlider("inches of water", 'div#slider-percep', "Precipitation", "percepId",
             1, 200, 10);
         sliderTemp = showSlider("degrees F", 'div#slider-temp', "Temperature", "tempId",
             1, 200, 40);
@@ -360,8 +405,7 @@
         sliderFlu = showSlider("Pneumonia and Influenza Deaths", 'div#slider-flu', "Pneumonea/Flu Deaths", "fluId",
             1, 200, 1);
         sliderLung = showSlider("lung_cancer", 'div#slider-lung', "Lung Cancer Deaths", "lungId",
-            1, 200, 1);
-
+            1, 200, 1);*/
 
     }
 
@@ -407,23 +451,40 @@
     }
 
     function updateMap() {
-        dataMap = d3.map();
-        dataset.forEach(function (r) {
-            dataMap.set(r.state.toUpperCase(), calculateIndex(r));
-        });
-        loadMapUsingData(mapJson);
+
+        var promisePCA = calculatePCA();
+        promisePCA.then(function(data) {
+            dataset.forEach(function (r) {
+                    dataMap.set(r.state.toUpperCase(), calculateIndex(r));
+            });
+            stateColor = d3.scaleOrdinal().domain(dataMap.keys())
+                .range(d3.schemeCategory10.slice(6));
+            loadMapUsingData();
+            }
+        );
+
+    }
+
+    function filterValidValues(values) {
+        var validValues = [];
+        for (v=0; v < values.length; v++) {
+            if (values[v] != undefined) {
+                validValues.push(values[v]);
+            }
+        }
+        return validValues.sort();
     }
 
     function createLegend() {
         d3.selectAll(".legend").remove();
-
+        var validValues = filterValidValues(color.domain());
         var legend = svg.append("g")
             .attr("class", "legend")
             .attr("x", width - 20)
             .attr("y", margin.top + 30)
             .attr("height", 100)
             .attr("width", 150);
-        legend.selectAll('g').data(color.range())
+        legend.selectAll('g').data(validValues)
             .enter()
             .append('g')
             .each(function (c, i) {
@@ -433,7 +494,7 @@
                     .attr("y", i * 22 + 70)
                     .attr("width", 20)
                     .attr("height", 20)
-                    .attr("fill", c);
+                    .attr("fill", color.range()[i]);
 
                 g.append("text")
                     .attr("x", width + 5)
@@ -442,7 +503,7 @@
                     .attr("width", 100)
 
                     .style("font-size", "12px")
-                    .text(Math.round(color.invertExtent(c)[1]));
+                    .text(c);
 
             });
 
