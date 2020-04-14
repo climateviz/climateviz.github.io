@@ -292,7 +292,7 @@
                     dataMap.set(r.state.toUpperCase(), calculateIndex(r));
             });
 
-            stateColor = d3.scaleOrdinal().domain([0,3])
+            stateColor = d3.scaleOrdinal().domain(dataMap.keys())
                 .range(d3.schemeOrRd[4]);
 
             loadMapUsingData();
@@ -469,7 +469,7 @@
             dataset.forEach(function (r) {
                     dataMap.set(r.state.toUpperCase(), calculateIndex(r));
             });
-            stateColor = d3.scaleOrdinal().domain([0,3])
+            stateColor = d3.scaleOrdinal().domain(dataMap.keys())
                 .range(d3.schemeCategory10.slice(6));
             loadMapUsingData();
             }
@@ -538,10 +538,6 @@
 
         var data = [];
         var selFactors = getSelectedFactors();
-        stateColor[0];
-        stateColor[1];
-        stateColor[2];
-        stateColor[3];
         for(i=0; i < selectedStates.length; i++) {
             var state = selectedStates[i];
             var stateData = d3.map(dataset).values().find(obj => obj.state==state.toLowerCase());
