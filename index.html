@@ -206,7 +206,7 @@
         .offset([20, 0])
         .html(function (d) {
             var state = d.properties.name;
-            var index = dataMap.get(state.toUpperCase()).toFixed(2);
+            var index = dataMap.get(state.toUpperCase()).toFixed(0);
             return "State: " + state + "<br />"
                 + "Cluster: " + index + "<br />";
         });
