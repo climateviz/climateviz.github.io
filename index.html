@@ -292,7 +292,7 @@
                     dataMap.set(r.state.toUpperCase(), calculateIndex(r));
             });
 
-            stateColor = d3.scaleOrdinal().domain(dataMap.keys())
+            stateColor = d3.scaleOrdinal().domain([0,3])
                 .range(d3.schemeOrRd[4]);
 
             loadMapUsingData();
