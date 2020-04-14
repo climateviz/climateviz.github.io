@@ -138,13 +138,14 @@
             <div style="float: left" id="slider-lung"></div>
         </div>
     </div>
-    <div style="float: left;width: 70%;">
-        <svg id="map" width="1200" height="800"></svg>
+    <div style="float: left;width: 80%;">
+        <svg id="map" style="align-content: center" width="1000" height="800"></svg>
     </div>
     <div style="float: left; display: block">
-        <div id="radar" class="radarChart2" style="display:none"></div>
-        <svg id="compareList" width="120" height="500"></svg>
+            <div id="radar" class="radarChart2" style="display:none"></div>
+            <svg id="compareList" width="120" height="500"></svg>
     </div>
+
 </div>
 <script>
     var margin = {top: 50, right: 50, bottom: 50, left: 70};
@@ -182,8 +183,8 @@
     var color;
 
     svg.append("text")
-        .attr("x", width - 30)
-        .attr("y", margin.top)
+        .attr("x", width - 100)
+        .attr("y", margin.top - 40)
         .style("font-size", "13px")
         .style("font-weight", "bold")
         .attr("text-achor", "middle")
@@ -480,8 +481,8 @@
         var validValues = filterValidValues(color.domain());
         var legend = svg.append("g")
             .attr("class", "legend")
-            .attr("x", width - 20)
-            .attr("y", margin.top + 30)
+            .attr("x", width - 40)
+            .attr("y", margin.top )
             .attr("height", 100)
             .attr("width", 150);
         legend.selectAll('g').data(validValues)
@@ -490,15 +491,15 @@
             .each(function (c, i) {
                 var g = d3.select(this);
                 g.append("rect")
-                    .attr("x", width - 20)
-                    .attr("y", i * 22 + 70)
+                    .attr("x", width - 90)
+                    .attr("y", i * 22 + 20)
                     .attr("width", 20)
                     .attr("height", 20)
                     .attr("fill", color.range()[i]);
 
                 g.append("text")
-                    .attr("x", width + 5)
-                    .attr("y", i * 23 + 80)
+                    .attr("x", width - 60)
+                    .attr("y", i * 23 + 30)
                     .attr("height", 20)
                     .attr("width", 100)
 
