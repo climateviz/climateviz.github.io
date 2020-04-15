@@ -293,7 +293,7 @@
             });
 
             stateColor = d3.scaleOrdinal().domain(dataMap.keys())
-                .range(d3.schemeCategory10.slice(6));
+                .range(d3.schemeCategory10);
 
             loadMapUsingData();
             showSliders();
@@ -472,7 +472,7 @@
                     dataMap.set(r.state.toUpperCase(), calculateIndex(r));
             });
             stateColor = d3.scaleOrdinal().domain(dataMap.keys())
-                .range(d3.schemeCategory10.slice(6));
+                .range(d3.schemeCategory10);
             loadMapUsingData();
             }
         );
@@ -527,10 +527,12 @@
     function buildAxes(stateData, factors) {
         var axes = [];
         for(j=0; j < factors.length; j++) {
-            var f = factors[j];
+            var f =  factors[j];
+            var fp = f + "_percent";
             axes.push({
                 axis: factorLabelMap.get(f),
-                value: stateData[f]
+                id: stateData.state.toUpperCase(),
+                value: stateData[fp]
             });
         }
         return axes;
@@ -598,18 +600,18 @@
     function buildAndDisplayRadarChart() {
         compareList.selectAll("*").remove();
 
-        var radarMargin = { top: 20, right: 100, bottom: 50, left: 100 }
+        var radarMargin = { top: 50, right: 100, bottom: 50, left: 100 }
         var data = buildDataForComparison();
         var radarChartOptions2 = {
-            w: 350,
+            w: 450,
             h: 350,
             margin: radarMargin,
-            maxValue: 60,
+            maxValue: 100,
             levels: 6,
             roundStrokes: false,
             color: stateColor,
             format: '.0f',
-            legend: {title: 'States', translateX: 100, translateY: 40},
+            legend: {title: 'States', translateX: -370, translateY: 0},
             unit: '%'
         };
         selectedStates = []
