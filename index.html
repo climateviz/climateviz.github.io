@@ -101,41 +101,41 @@
     </p>
 </div>
         <div style="float: left;height: 35px">
-            <input type="checkbox" checked id="percepId" onchange="updateMap()"
+            <input type="checkbox" checked id="percepId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Precipitation&nbsp;&nbsp;</label>
             <div style="float: left" id="slider-percep"></div>
         </div>
 
         <div style="float: left;height: 35px">
-            <input type="checkbox" checked id="tempId" onchange="updateMap()"
+            <input type="checkbox" checked id="tempId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Temperature&nbsp;&nbsp;</label>
             <div style="float: left" id="slider-temp"></div>
         </div>
         <div style="float: left;height: 35px">
-            <input type="checkbox" checked id="pollutionId" onchange="updateMap()"
+            <input type="checkbox" checked id="pollutionId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Pollution Index&nbsp;&nbsp;</label>
 
             <div style="overflow: hidden" id="slider-pollution"></div>
         </div>
         <div style="float: left;height: 35px">
-            <input type="checkbox" checked id="stormId" onchange="updateMap()"
+            <input type="checkbox" checked id="stormId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Storm Deaths&nbsp;&nbsp;</label>
 
             <div style="float: left" id="slider-storm"></div>
         </div>
         <div style="float: left;height: 35px">
-            <input type="checkbox" checked id="stormInjId" onchange="updateMap()"
+            <input type="checkbox" checked id="stormInjId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Storm Injuries&nbsp;&nbsp;</label>
 
             <div style="float: left" id="slider-storm-inj"></div>
         </div>
         <div style="float: left;height: 35px">
-            <input type="checkbox" id="fluId" onchange="updateMap()" style="float:left; position: relative; width: 30px">
+            <input type="checkbox" id="fluId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}" style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Pneumonea/Flu Deaths&nbsp;&nbsp;</label>
 
             <div style="float: left" id="slider-flu"></div>
@@ -463,6 +463,8 @@
     }
 
     function updateMap() {
+        d3.select("#radar").style("display", "none");
+        compareList.selectAll("*").remove();
 
         var promisePCA = calculatePCA();
         promisePCA.then(function(data) {
