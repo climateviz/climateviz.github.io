@@ -3,6 +3,8 @@ DESCRIPTION -
     One may investigate the detailed differences among states with repect to indicators by clicking on a few states from the map. To the right, one may see a list of these selections. Click the update button to see a radar chart with this comparison. This tool works best for comparing only a few states. Try picking those that are similar (belonging to the same cluster). The try picking those that are different. Keep an eye out for any emerging patterns.
     All datasets were downloaded from data.gov. 
 INSTALLATION - 
-
+    N/A - Use our website at https://climateviz.github.io/
 EXECUTION - 
-    To excute the code, simply open index.html. This will call your AWS infrastrcture that runs PCA and K-Means using Python in AWS Lambda.
+    Use our website at https://climateviz.github.io/ or to excute the code, simply open index.html. 
+    This will call our AWS infrastrcture that runs PCA and K-Means using Python in AWS Lambda.
+    
