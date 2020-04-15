@@ -6,10 +6,9 @@ This project vizualizes the similarities/differences between states of the USA f
 One may investigate the detailed differences among states with repect to indicators by clicking on a few states from the map. To the right, one may see a list of these selections. Click the update button to see a radar chart with this comparison. This tool works best for comparing only a few states. Try picking those that are similar (belonging to the same cluster). Then try picking those that are different. Keep an eye out for any emerging patterns.
 
 Datasets were downloaded from the following locations:
-NOAA.gov:{Precipitation, Temperature, Storm Deaths, Storm Injuries}
-data.gov:{Pneumonia/Flu Deaths}
-CDC.gov:{Pollution Index, Lung Cancer Deaths}
+    NOAA.gov:{Precipitation, Temperature, Storm Deaths, Storm Injuries}
+    data.gov:{Pneumonia/Flu Deaths}
+    CDC.gov:{Pollution Index, Lung Cancer Deaths}
 ### INSTALLATION  & EXECUTION - 
-    Use our website at https://climateviz.github.io/ or to execute the code, simply open index.html. 
+    Use our website at https://climateviz.github.io/ or to execute the code, simply open index.html with any browser. 
     This will call our AWS infrastrcture that runs PCA and K-Means using Python in AWS Lambda.
-    
