@@ -90,7 +90,16 @@
     on Health</h1></div>
 <div style="float: left;width: 100%;">
     <div style="overflow: hidden">
-
+        <div style="float: left;width: 100%;">
+    <p>
+            <h3>Instructions:</h3>
+        <ol type="1">
+            <li>Select 2 or more indicators.</li>
+            <li>Watch the map clusters update dynamically. The clusters are created using PCA and K-Means based on the selected factors.</li>
+            <li>Select 2 or states to compare in detail via the radar chart.</li>
+          </ol>
+    </p>
+</div>
         <div style="float: left;height: 35px">
             <input type="checkbox" checked id="percepId" onchange="updateMap()"
                    style="float:left; position: relative; width: 30px">
@@ -138,26 +147,17 @@
             <div style="float: left" id="slider-lung"></div>
         </div>
     </div>
-    <div style="float: left;width: 60%;">
-        <svg id="map" style="align-content: center" width="1000" height="800"></svg>
+    <div style="float: left;width: 60%; height: 70%">
+        <svg id="map" style="align-content: center" width="1000" height="700"></svg>
     </div>
-    <div style="float: left; display: block; width: 20%;">
+    <div style="float: left; display: block; width: 20%; height: 40%">
             <div id="radar" class="radarChart2" style="display:none"></div>
             <svg id="compareList" width="150" height="500"></svg>
     </div>
 
 </div>
 
-<div style="float: left;width: 100%;">
-    <p>
-        Instructions:
-        <ol type="1">
-            <li>Select 2 or more indicators.</li>
-            <li>Watch the map clusters update dynamically. The clusters are created using PCA and K-Means based on the selected factors.</li>
-            <li>Select 2 or states to compare in detail via the radar chart.</li>
-          </ol> 
-    </p>
-</div>
+
 <script>
     var margin = {top: 50, right: 50, bottom: 50, left: 70};
     var sliderPercep, sliderTemp, sliderPollution, sliderStorm, sliderStormInj, sliderFlu, sliderLung;
@@ -194,7 +194,7 @@
     var color;
 
     svg.append("text")
-        .attr("x", width - 100)
+        .attr("x", width - 160)
         .attr("y", margin.top - 40)
         .style("font-size", "13px")
         .style("font-weight", "bold")
@@ -307,7 +307,7 @@
             .domain(dataMap.values().filter(function (d, i) {
                 return dataMap.values().indexOf(d) == i;
             }))
-            .range(d3.schemeOrRd[4]);
+            .range(d3.schemeSet3);
         svg.append("g")
             .attr("class", "states")
             .selectAll("path")
@@ -502,14 +502,14 @@
             .each(function (c, i) {
                 var g = d3.select(this);
                 g.append("rect")
-                    .attr("x", width - 90)
+                    .attr("x", width - 150)
                     .attr("y", i * 22 + 20)
                     .attr("width", 20)
                     .attr("height", 20)
                     .attr("fill", color(c));
 
                 g.append("text")
-                    .attr("x", width - 60)
+                    .attr("x", width - 120)
                     .attr("y", i * 23 + 30)
                     .attr("height", 20)
                     .attr("width", 100)
