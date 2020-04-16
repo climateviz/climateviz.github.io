@@ -12,4 +12,4 @@ Datasets were downloaded from the following locations:
 ### INSTALLATION  & EXECUTION - 
     Use our website at https://climateviz.github.io/ or to execute the code, simply open index.html with any browser. 
     This will call our AWS infrastrcture that runs PCA and K-Means using Python in AWS Lambda.
-    NOTE: If you are having issues from the AWS call it is most likely do to the cold start more info [here](https://aws.amazon.com/blogs/compute/new-for-aws-lambda-predictable-start-up-times-with-provisioned-concurrency/)
+    NOTE: If you are having issues from the AWS call it is most likely do to the cold start more info here: https://aws.amazon.com/blogs/compute/new-for-aws-lambda-predictable-start-up-times-with-provisioned-concurrency/
