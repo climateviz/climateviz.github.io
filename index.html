@@ -68,6 +68,7 @@
 
         .button text {
             font-size: 14px;
+            font-family: Calibri;
             fill: #eee;
             pointer-events: none;
             text-anchor: middle;
@@ -86,11 +87,11 @@
     <script src="lib/d3.button.js"></script>
 </head>
 <body>
-<div style="background-color:bisque;color: brown; font-family:'Book Antiqua' ;text-align: center"><h1>Impact of Climate
+<div style="background-color:#F2F5DE;color: #343633; font-family:'Calibri' ;text-align: center"><h1>Impact of Climate
     on Health</h1></div>
 <div style="float: left;width: 100%;">
     <div style="overflow: hidden">
-        <div style="float: left;width: 100%;">
+        <div style="float: left;width: 100%;font-family: Calibri;">
     <p>
             <h3>Instructions:</h3>
         <ol type="1">
@@ -100,47 +101,47 @@
           </ol>
     </p>
 </div>
-        <div style="float: left;height: 35px">
+        <div style="float: left;height: 35px; font-family: Calibri;">
             <input type="checkbox" checked id="percepId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Precipitation&nbsp;&nbsp;</label>
             <div style="float: left" id="slider-percep"></div>
         </div>
 
-        <div style="float: left;height: 35px">
+        <div style="float: left;height: 35px; font-family: Calibri;">
             <input type="checkbox" checked id="tempId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Temperature&nbsp;&nbsp;</label>
             <div style="float: left" id="slider-temp"></div>
         </div>
-        <div style="float: left;height: 35px">
+        <div style="float: left;height: 35px; font-family: Calibri;">
             <input type="checkbox" checked id="pollutionId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Pollution Index&nbsp;&nbsp;</label>
 
             <div style="overflow: hidden" id="slider-pollution"></div>
         </div>
-        <div style="float: left;height: 35px">
+        <div style="float: left;height: 35px; font-family: Calibri;">
             <input type="checkbox" checked id="stormId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Storm Deaths&nbsp;&nbsp;</label>
 
             <div style="float: left" id="slider-storm"></div>
         </div>
-        <div style="float: left;height: 35px">
+        <div style="float: left;height: 35px; font-family: Calibri;">
             <input type="checkbox" checked id="stormInjId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}"
                    style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Storm Injuries&nbsp;&nbsp;</label>
 
             <div style="float: left" id="slider-storm-inj"></div>
         </div>
-        <div style="float: left;height: 35px">
+        <div style="float: left;height: 35px; font-family: Calibri;">
             <input type="checkbox" id="fluId" onchange="if(getSelectedFactors().length>0) {updateMap();}else{this.checked = true;}" style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Pneumonea/Flu Deaths&nbsp;&nbsp;</label>
 
             <div style="float: left" id="slider-flu"></div>
         </div>
-        <div style="float: left;height: 60px">
+        <div style="float: left;height: 60px; font-family: Calibri;">
             <input type="checkbox" id="lungId" style="float:left; position: relative; width: 30px">
             <label style="font-weight: bold;float: left;height: 35px">Lung Cancer Deaths&nbsp;&nbsp;</label>
 
@@ -193,18 +194,21 @@
 
     var color;
 
-    svg.append("text")
-        .attr("x", width - 160)
-        .attr("y", margin.top - 40)
-        .style("font-size", "13px")
-        .style("font-weight", "bold")
-        .attr("text-achor", "middle")
-        .text("Cluster");
+    // svg.append("text")
+    //     .attr("x", width - 160)
+    //     .attr("y", margin.top - 40)
+    //     .style("font-size", "15px")
+    //     .style("font-family", "Calibri")
+    //     .style("font-weight", "bold")
+    //     .attr("text-achor", "middle")
+    //     .text("Cluster");
 
 
     var tool_tip = d3.tip()
         .attr("class", "d3-tip")
-        .offset([20, 0])
+        .style("font-family", "Calibri")
+        .style("font-size", "15px")
+        .offset([10, 0])
         .html(function (d) {
             var state = d.properties.name;
             var index = dataMap.get(state.toUpperCase()).toFixed(0);
@@ -341,12 +345,13 @@
                         .attr("y", function (s, i) {
                             return (25 + 20 * (i));
                         })
-                        .attr("width", 100)
+                        .attr("width", 120)
                         .attr("height", 20)
-                        .attr("fill", "#8fc7cc");
+                        .attr("fill", "#E2E2E2");
 
                     stateElem.append("text")
-                        .style("font-size", "13px")
+                        .style("font-size", "16px")
+                        .attr("font-family", "Calibri")
                         .attr("text-achor", "middle")
                         .attr("x", 10)
                         .attr("y", function (s, i) {
@@ -361,20 +366,21 @@
                     titleElem.append("rect")
                         .attr("x", 0)
                         .attr("y", 0)
-                        .attr("width", 110)
+                        .attr("width", 120)
                         .attr("height", 25)
-                        .attr("fill", "#cc0d11");
+                        .attr("fill", "#1C0F13");
 
                     titleElem.append("text")
-                        .style("font-size", "16px")
+                        .style("font-size", "17px")
+                        .attr("font-family", "Calibri")
                         .style("fill", "white")
                         .attr("text-achor", "middle")
                         .attr("x", 5)
                         .attr("y", 20)
-                        .text("Compare States");
+                        .text("Selected States");
 
                     if (selectedStates.length >= 2) {
-                        var buttonProps = [{label: "Compare", x: 50, y: (20 + 20 * (selectedStates.length + 2))}];
+                        var buttonProps = [{label: "Compare", x: 60, y: (20 + 20 * (selectedStates.length + 2))}];
                         var button = d3.button()
                             .on('press', function (d, i) {
                                 buildAndDisplayRadarChart()
@@ -511,13 +517,13 @@
                     .attr("fill", color(c));
 
                 g.append("text")
-                    .attr("x", width - 120)
+                    .attr("x", width - 122.5)
                     .attr("y", i * 23 + 30)
                     .attr("height", 20)
                     .attr("width", 100)
-
+                    .style("font-family", "Calibri")
                     .style("font-size", "12px")
-                    .text(c);
+                    .text("Cluster " + c);
 
             });
 
@@ -611,7 +617,7 @@
             roundStrokes: false,
             color: stateColor,
             format: '.0f',
-            legend: {title: 'States', translateX: -370, translateY: 0},
+            legend: {translateX: -370, translateY: 0},
             unit: '%'
         };
         selectedStates = []
